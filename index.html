@@ -1,0 +1,613 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Missão de Pilecki: Um Teste à Coragem</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos Globais -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Animação de fade-in para os componentes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+    
+    <!-- Bibliotecas React e Babel (para transpilar JSX no navegador) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-900 text-white">
+    
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        //============== TYPES ===============
+        const QuestionType = {
+          SINGLE_CHOICE: 0,
+          MULTIPLE_CHOICE: 1,
+          TRUE_FALSE: 2,
+        };
+        
+        //============== CONSTANTS ===============
+        const quizQuestions = [
+            { id: 1, type: QuestionType.SINGLE_CHOICE, text: 'Qual era a missão principal de Witold Pilecki ao voluntariar-se para ir para Auschwitz?', options: ['Apenas sobreviver ao Holocausto.', 'Infiltrar-se, recolher informações e organizar a resistência.', 'Encontrar familiares perdidos.', 'Liderar uma fuga em massa imediatamente.'], correctAnswers: ['Infiltrar-se, recolher informações e organizar a resistência.'], explanation: 'A missão de Pilecki era multifacetada: infiltrar-se, descobrir a verdade sobre o campo e organizar uma resistência interna.' },
+            { id: 2, type: QuestionType.SINGLE_CHOICE, text: 'Em que ano Witold Pilecki se voluntariou para ser enviado para Auschwitz?', options: ['1939', '1940', '1941', '1942'], correctAnswers: ['1940'], explanation: 'Pilecki iniciou sua missão em 1940, quando Auschwitz era ainda um lugar envolto em mistério e rumores.' },
+            { id: 3, type: QuestionType.TRUE_FALSE, text: 'Verdadeiro ou Falso: Antes da guerra, Pilecki era um aventureiro sem família ou responsabilidades.', options: ['Verdadeiro', 'Falso'], correctAnswers: ['Falso'], explanation: 'Pelo contrário, Pilecki era um pilar da sua comunidade, um artista, marido e pai, o que torna o seu sacrifício ainda mais monumental.' },
+            { id: 4, type: QuestionType.SINGLE_CHOICE, text: 'Qual era o nome da rede de resistência que Pilecki organizou dentro de Auschwitz?', options: ['O Exército da Pátria', 'A Resistência de Varsóvia', 'Z.O.W. (União de Organização Militar)', 'Os Combatentes da Liberdade'], correctAnswers: ['Z.O.W. (União de Organização Militar)'], explanation: 'Ele construiu, célula a célula, a Z.O.W., uma rede secreta que operava debaixo do nariz dos SS.' },
+            { id: 5, type: QuestionType.SINGLE_CHOICE, text: 'Qual era a frase cínica escrita nos portões de Auschwitz?', options: ['"Bem-vindos ao vosso novo lar"', '"O trabalho liberta"', '"A obediência é a vossa salvação"', '"Deixai toda a esperança, vós que entrais"'], correctAnswers: ['"O trabalho liberta"'], explanation: 'A frase "Arbeit macht frei" ("O trabalho liberta") era uma inscrição terrivelmente cínica nos portões do campo.' },
+            { id: 6, type: QuestionType.SINGLE_CHOICE, text: 'Qual número substituiu o nome de Pilecki em Auschwitz?', options: ['1103', '7821', '4859', '9012'], correctAnswers: ['4859'], explanation: 'Seu nome foi-lhe roubado e substituído pelo número 4859, um passo no processo de desumanização do sistema.' },
+            { id: 7, type: QuestionType.SINGLE_CHOICE, text: 'Após quantos dias em Auschwitz é que Pilecki conseguiu escapar?', options: ['365 dias', '730 dias', '947 dias', '1095 dias'], correctAnswers: ['947 dias'], explanation: 'Depois de 947 dias no inferno, em abril de 1943, Pilecki executou uma fuga audaciosa para relatar ao mundo o que viu.' },
+            { id: 8, type: QuestionType.SINGLE_CHOICE, text: 'Qual o nome do relatório que Pilecki escreveu após a sua fuga, um dos primeiros testemunhos do Holocausto?', options: ['O Relatório de Auschwitz', 'As Crónicas do Inferno', 'O Relatório de Witold', 'O Testemunho Final'], correctAnswers: ['O Relatório de Witold'], explanation: 'O seu relatório, conhecido como "Relatório de Witold" (ou "Relatório do Wild"), foi um dos primeiros e mais detalhados testemunhos oculares do Holocausto.' },
+            { id: 9, type: QuestionType.MULTIPLE_CHOICE, text: 'Pilecki lutou contra quais dois regimes totalitários durante a sua vida?', options: ['Nazismo', 'Fascismo Italiano', 'Comunismo Soviético', 'Franquismo Espanhol'], correctAnswers: ['Nazismo', 'Comunismo Soviético'], explanation: 'A sua vida foi uma luta constante contra dois totalitarismos: primeiro a Alemanha Nazi, e depois o regime comunista imposto pelos soviéticos.' },
+            { id: 10, type: QuestionType.TRUE_FALSE, text: 'Verdadeiro ou Falso: O mundo acreditou e agiu imediatamente com base nos relatórios de Pilecki.', options: ['Verdadeiro', 'Falso'], correctAnswers: ['Falso'], explanation: 'Tragicamente, o mundo simplesmente não quis acreditar. A verdade era tão monstruosa que foi considerada um exagero.' },
+            { id: 11, type: QuestionType.SINGLE_CHOICE, text: 'Após a Segunda Guerra Mundial, Pilecki foi preso e executado por qual regime?', options: ['O regime Nazi remanescente', 'O regime comunista imposto pelos soviéticos', 'O governo polaco do pós-guerra', 'Forças Aliadas'], correctAnswers: ['O regime comunista imposto pelos soviéticos'], explanation: 'A ironia cruel é que o herói que sobreviveu a Auschwitz foi preso e executado pelo novo regime totalitário que tomou o poder na Polónia.' },
+            { id: 12, type: QuestionType.SINGLE_CHOICE, text: 'Qual foi a acusação forjada contra Pilecki pelo regime comunista?', options: ['Traição', 'Crimes de guerra', 'Espionagem', 'Deserção'], correctAnswers: ['Espionagem'], explanation: 'Num julgamento de fachada, ele foi acusado de espionagem para o "Ocidente" e condenado à morte.' },
+            { id: 13, type: QuestionType.SINGLE_CHOICE, text: 'O que Pilecki disse sobre a tortura comunista em comparação com a sua experiência em Auschwitz?', options: ['"Foi igualmente terrível"', '"Nada se compara a Auschwitz"', '"Comparado com eles, Auschwitz foi apenas uma ninharia"', '"Prefiro não comparar sofrimentos"'], correctAnswers: ['"Comparado com eles, Auschwitz foi apenas uma ninharia"'], explanation: 'Esta frase chocante revela a brutalidade extrema dos seus interrogadores comunistas.' },
+            { id: 14, type: QuestionType.MULTIPLE_CHOICE, text: 'Selecione os objetivos da Z.O.W. dentro de Auschwitz:', options: ['Partilhar comida e medicamentos', 'Manter o moral e a esperança vivos', 'Organizar um futuro levantamento armado', 'Contrabandear informações vitais para o exterior'], correctAnswers: ['Partilhar comida e medicamentos', 'Manter o moral e a esperança vivos', 'Organizar um futuro levantamento armado', 'Contrabandear informações vitais para o exterior'], explanation: 'A Z.O.W. era uma rede de resistência ativa com múltiplos objetivos, desde o apoio mútuo e manutenção da moral até à recolha de informações e preparação para um levantamento.' },
+            { id: 15, type: QuestionType.SINGLE_CHOICE, text: 'Em que ano Witold Pilecki foi executado pelo regime comunista?', options: ['1945', '1947', '1948', '1951'], correctAnswers: ['1948'], explanation: 'Após um julgamento de fachada, Witold Pilecki foi executado com um tiro na nuca a 25 de maio de 1948.' }
+        ];
+        const matchingItems = [
+            { id: 'item-1', term: 'Witold Pilecki', description: 'Herói polaco que se infiltrou voluntariamente em Auschwitz.' },
+            { id: 'item-2', term: 'Z.O.W.', description: 'Rede de resistência clandestina organizada dentro do campo de concentração.' },
+            { id: 'item-3', term: 'Relatório de Witold', description: 'Um dos primeiros e mais detalhados testemunhos oculares do Holocausto.' },
+            { id: 'item-4', term: '4859', description: 'O número de prisioneiro que substituiu a sua identidade.' },
+            { id: 'item-5', term: 'Regime Comunista', description: 'O segundo totalitarismo contra o qual lutou e que o executou.' },
+        ];
+        const timelineEvents = [
+            { id: 'event-1', description: 'Voluntaria-se para ser capturado e enviado para Auschwitz.', correctOrder: 0 },
+            { id: 'event-2', description: 'Organiza a rede de resistência (Z.O.W.) dentro de Auschwitz.', correctOrder: 1 },
+            { id: 'event-3', description: 'Escapa de Auschwitz após 947 dias.', correctOrder: 2 },
+            { id: 'event-4', description: 'Luta como comandante na Revolta de Varsóvia.', correctOrder: 3 },
+            { id: 'event-5', description: 'É preso pela polícia secreta comunista.', correctOrder: 4 },
+            { id: 'event-6', description: 'É executado com um tiro na nuca.', correctOrder: 5 },
+        ];
+        const glossaryTerms = [
+            { term: 'Arbeit Macht Frei', definition: 'Frase alemã que significa "O trabalho liberta". Estava inscrita no portão de entrada do campo de concentração de Auschwitz I, servindo como um lema cínico para os prisioneiros.' },
+            { term: 'Armia Krajowa (AK)', definition: 'O "Exército Nacional", principal movimento de resistência polaco na Polónia ocupada pela Alemanha durante a Segunda Guerra Mundial. Era leal ao governo polaco no exílio em Londres.' },
+            { term: 'Exército Secreto Polaco (Tajna Armia Polska - TAP)', definition: 'Uma das primeiras organizações de resistência clandestinas formadas na Polónia após a invasão de 1939. Witold Pilecki foi um dos seus cofundadores e inspetor organizacional.' },
+            { term: 'Gestapo', definition: 'A polícia secreta oficial da Alemanha nazi e da Europa ocupada pelos alemães.' },
+            { term: 'KeDyw (Kierownictwo Dywersji)', definition: 'A "Diretoria de Diversão" do Armia Krajowa, responsável por ações de sabotagem, diversão e combate armado contra as forças de ocupação. Pilecki trabalhou no KeDyw após a sua fuga de Auschwitz.' },
+            { term: 'NIE ("Niepodległość")', definition: 'Nome de código para uma organização secreta anticomunista, formada dentro do Armia Krajowa perto do fim da guerra para preparar a resistência contra uma potencial ocupação soviética. Pilecki foi designado para ser um dos seus co-organizadores.' },
+            { term: 'Revolta de Varsóvia', definition: 'Uma grande operação militar liderada pelo Armia Krajowa para libertar Varsóvia da ocupação alemã, que começou em 1 de agosto de 1944. Apesar de combates heróicos que duraram 63 dias, a revolta foi esmagada pelos alemães. Pilecki lutou na revolta.' },
+            { term: 'Relatório Witold (Raport Witolda)', definition: 'O nome dado ao relatório abrangente que Pilecki escreveu após a sua fuga de Auschwitz em 1943. Detalhava o funcionamento do campo, a organização da resistência e o genocídio em curso.' },
+            { term: 'SS (Schutzstaffel)', definition: 'Uma grande organização paramilitar sob o comando de Adolf Hitler e do Partido Nazi. As SS foram responsáveis pela administração dos campos de concentração e pela implementação do Holocausto.' },
+            { term: 'União da Organização Militar (Związek Organizacji Wojskowej - ZOW)', definition: 'O nome da rede de resistência clandestina fundada e liderada por Witold Pilecki dentro de Auschwitz.' },
+            { term: 'Zyklon B', definition: 'O nome comercial de um pesticida à base de cianeto utilizado pela Alemanha nazi para assassinar em massa prisioneiros nas câmaras de gás de Auschwitz e outros campos de extermínio.' }
+        ];
+        
+        const studyContent = [
+            {
+                title: "1. Introdução: O Herói de Duas Guerras e Vítima de uma Terceira",
+                content: "A vida de Witold Pilecki representa uma das mais extraordinárias sagas de coragem do século XX, mas a sua história transcende o mero heroísmo pessoal. Como soldado polaco e oficial de inteligência, ele concebeu e executou uma operação de inteligência de audácia sem precedentes na história da espionagem e da guerra não convencional: voluntariar-se para ser aprisionado no campo de concentração de Auschwitz. O seu objetivo era organizar a resistência interna e, crucialmente, expor os seus horrores ao mundo. Sobrevivente de quase três anos no epicentro do terror nazi, os seus relatórios foram os primeiros testemunhos abrangentes a chegar aos Aliados. A trágica ironia do seu destino é que, tendo sobrevivido a dois regimes totalitários — o nazi e o soviético durante a guerra — foi perseguido, torturado e executado pelo regime comunista do pós-guerra na sua amada Polónia. A sua história foi deliberadamente suprimida durante décadas, mas, após a queda do comunismo, Witold Pilecki foi reabilitado, emergindo como um símbolo indelével da luta inabalável pela dignidade humana e pela liberdade contra a tirania."
+            },
+            {
+                title: "2. Primeiros Anos e a Formação de um Patriota (1901-1921)",
+                content: "O caráter e o fervor patriótico de Witold Pilecki foram forjados no cadinho de um ambiente familiar profundamente nacionalista e de um período histórico turbulento. Nascido no seio de um Império Russo em colapso, a sua juventude coincidiu com a luta da Polónia pela recuperação da sua independência, um contexto que incutiu nele um profundo sentido de dever para com a sua pátria, moldando o jovem que se tornaria um soldado e, mais tarde, um herói da resistência.\n\n**2.1 Herança Familiar e Educação Patriótica**\nWitold Pilecki nasceu a 13 de maio de 1901, em Olonets, na Carélia, uma região remota do Império Russo, no seio de uma família nobre polaca. A história da sua família estava intrinsecamente ligada à luta pela independência polaca. O seu avô, Józef Pilecki, foi exilado para a Sibéria por sete anos como punição pela sua participação na Revolta de Janeiro de 1863-64, e as propriedades da família foram confiscadas pelas autoridades czaristas. A sua mãe, Ludwika Osiecimska, desempenhou um papel crucial na sua formação, incutindo-lhe um forte sentido de identidade nacional. Preocupada com a crescente russificação dos seus filhos, Ludwika familiarizou-os com a história da Polónia e as histórias de perseguição aos patriotas. Em 1910, decidida a garantir uma educação polaca para os seus filhos, mudou-se com eles para Vilnius. Foi lá que, em 1913, com apenas 12 anos, Witold se juntou à Associação de Escotismo Polaca, uma organização clandestina proibida pelas autoridades russas.\n\n**2.2 Início da Carreira Militar: A Guerra Polaco-Soviética**\nCom o fim da Primeira Guerra Mundial e a reconquista da independência da Polónia em 1918, Pilecki envolveu-se imediatamente na defesa da sua nação recém-nascida. Em Vilnius, juntou-se às unidades de autodefesa polacas, lutando primeiro para expulsar as tropas alemãs em retirada. Num momento de profundo simbolismo, após a libertação da cidade, Pilecki foi o comandante da primeira guarda em frente à imagem de Nossa Senhora da Porta da Aurora na noite de 31 de dezembro de 1918. Pouco depois, lutou contra o avanço do Exército Vermelho bolchevique. A sua coragem foi posta à prova durante a Guerra Polaco-Soviética (1919-1921). Servindo como cavaleiro, participou em batalhas cruciais que definiram as fronteiras da Segunda República Polaca, incluindo a Batalha de Kiev (1920) e a decisiva Batalha de Varsóvia (1920). Esta última batalha foi fundamental para travar o avanço do bolchevismo para o ocidente da Europa, um conflito que moldou profundamente a visão do mundo de uma geração de patriotas polacos como Pilecki. Pela sua bravura em combate, foi condecorado duas vezes com a Cruz de Valor. Estas experiências formativas solidificaram o seu compromisso inabalável com uma Polónia independente, preparando-o para os desafios que enfrentaria como cidadão e soldado no período entre-guerras."
+            },
+            {
+                title: "3. O Período Entre-Guerras: Cidadão, Soldado e Líder Comunitário (1921-1939)",
+                content: "**3.1 Vida Pessoal e Profissional**\nApós o fim da guerra, dificuldades financeiras familiares forçaram Pilecki a abandonar os seus estudos universitários. Em 1926, assumiu a administração da propriedade da sua família em Sukurcze, modernizando-a e garantindo a sua estabilidade financeira. Em 1931, casou-se com Maria Ostrowska, uma professora local, com quem teve dois filhos: Andrzej, nascido em 1932, e Zofia, nascida em 1933. Segundo a sua filha, Zofia, ele incutiu-lhes princípios fundamentais, enfatizando que \"a coragem era essencial\" e \"dizer a verdade era o mais importante de tudo\", e que valores como \"a pontualidade e a veracidade eram particularmente importantes\". Estas lições, transmitidas com amor, moldaram o carácter dos seus filhos e refletiam os valores que guiavam a sua própria vida.\n\n**3.2 Liderança Comunitária e Serviço na Reserva**\nPilecki tornou-se rapidamente um líder comunitário ativo e respeitado. O seu espírito empreendedor levou-o a criar uma cooperativa leiteira local, a liderar o corpo de bombeiros voluntário e a fundar uma unidade de treino de cavalaria chamada \"Krakusy\", dedicada à preparação militar dos jovens da região. Paralelamente, manteve o seu compromisso com as forças armadas. Em 1926, foi promovido a tenente da reserva. O seu dedicado serviço à comunidade foi formalmente reconhecido em 1938, quando recebeu a Cruz de Prata de Mérito. A sua vida estável e produtiva, dedicada à família, à comunidade e ao país, foi abruptamente interrompida pela invasão da Polónia pela Alemanha nazi em setembro de 1939, que o chamou de volta ao serviço militar ativo."
+            },
+            {
+                title: "4. A Missão de Auschwitz: Infiltração e Resistência (1940-1943)",
+                content: "A missão de Witold Pilecki em Auschwitz representa uma das operações de inteligência mais audaciosas e perigosas da Segunda Guerra Mundial. Num momento em que o campo era uma entidade nova e enigmática, e os Aliados operavam num vácuo de informação, a sua infiltração voluntária foi um ato de sacrifício extraordinário. O seu objetivo era fornecer a verdade a partir do terreno sobre a maquinaria industrial da morte nazi, desafiando diretamente a descrença e a inação dos Aliados com provas irrefutáveis recolhidas com um risco inimaginável.\n\n**4.1 A Decisão de se Voluntariar**\nComo um dos cofundadores do Exército Secreto Polaco (TAP), uma das primeiras organizações da resistência, Pilecki propôs aos seus superiores um plano ousado: ser deliberadamente preso e enviado para Auschwitz. A missão tinha três objetivos principais: recolher informações de inteligência, organizar uma rede de conspiração no interior do campo e, se possível, preparar os prisioneiros para uma luta de libertação. A 19 de setembro de 1940, durante uma rusga das forças alemãs no bairro de Żoliborz, em Varsóvia, Pilecki permitiu-se ser capturado no apartamento da sua cunhada, Eleonora Ostrowska. Usando a identidade falsa de \"Tomasz Serafiński\", foi detido e, dias depois, enviado para o destino que ele próprio escolhera.\n\n**4.2 Prisioneiro N.º 4859: A Vida e a Morte em Auschwitz**\nNa noite de 21 para 22 de setembro de 1940, Witold Pilecki chegou a Auschwitz, onde se tornou o prisioneiro número 4859. A brutalidade do campo foi imediata. Como ele próprio relatou mais tarde: \"Aqui, os meus dois primeiros dentes foram arrancados, porque eu estava a carregar a placa de registo com o meu número na mão, em vez de a levar nos dentes... Levei um golpe na mandíbula com uma haste pesada.\" As condições eram desumanas: trabalho forçado extenuante, fome extrema e violência constante. No início de 1941, sobreviveu a uma pneumonia grave apenas com a ajuda de outros prisioneiros da organização que já começara a formar.\n\n**4.3 A Organização da Resistência Clandestina (OM)**\nApesar das condições adversas, Pilecki começou imediatamente a construir uma rede clandestina dentro do campo, a Organização Militar (OM). A OM operava com uma estrutura militar secreta e realizava atividades cruciais para a sobrevivência e resistência dos prisioneiros: Manter o moral, Apoio mútuo, Recolha de informações, Infiltração estratégica, e Contra-espionagem.\n\n**4.4 Os Relatórios de Pilecki: Alertando o Mundo**\nA partir de outubro de 1940, os relatórios de Pilecki começaram a ser contrabandeados para fora de Auschwitz. Estas mensagens constituíram as primeiras informações abrangentes e fidedignas sobre as operações nazis no campo a chegar aos Aliados. Os seus relatórios documentaram meticulosamente a evolução de Auschwitz de um campo de concentração para um centro de extermínio em massa. Pilecki suplicou repetidamente para que os Aliados bombardeassem as câmaras de gás e os crematórios, mas estas súplicas foram em grande parte ignoradas.\n\n**4.5 A Fuga**\nNa primavera de 1943, a situação tornou-se insustentável. A Gestapo do campo intensificava a caça aos membros da resistência. Convencido de que a sua presença no exterior era mais útil, Pilecki decidiu fugir. Na noite de 26 para 27 de abril de 1943, juntamente com dois outros prisioneiros, Jan Redzej e Edward Ciesielski, executou uma fuga bem-sucedida."
+            },
+            {
+                title: "5. A Luta Continua: A Revolta de Varsóvia e o Final da Guerra (1943-1945)",
+                content: "Após a sua fuga de Auschwitz, Witold Pilecki transitou de agente infiltrado para combatente ativo na linha da frente da resistência polaca. A sua frustração com a inação dos Aliados em relação a Auschwitz apenas fortaleceu a sua determinação em lutar pela soberania da Polónia.\n\n**5.1 O \"Relatório de Witold\" e a Organização \"NIE\"**\nDepois de escapar, Pilecki redigiu relatórios detalhados sobre a sua experiência, que ficaram conhecidos como o \"Relatório de Witold\". No entanto, o comando do Exército da Pátria concluiu que um ataque para libertar o campo era logisticamente impossível. Simultaneamente, Pilecki envolveu-se na criação da organização secreta anticomunista \"NIE\", cujo objetivo era preparar as estruturas da resistência para uma futura ocupação soviética.\n\n**5.2 A Revolta de Varsóvia (1944)**\nQuando a Revolta de Varsóvia eclodiu, a 1 de agosto de 1944, Pilecki tinha ordens para não participar diretamente. No entanto, quebrou a proibição e juntou-se à luta. Inicialmente, combateu como um soldado raso, mas à medida que a batalha se intensificava, assumiu o comando de uma companhia.\n\n**5.3 Prisioneiro de Guerra**\nCom a capitulação da revolta em outubro de 1944, Pilecki foi capturado pelos alemães. Desta vez, foi-lhe concedido o estatuto de prisioneiro de guerra e foi encarcerado em vários campos. A 29 de abril de 1945, foi finalmente libertado por tropas americanas. A libertação do jugo nazi marcou o início da sua fase mais perigosa, desta vez contra o novo ocupante soviético."
+            },
+            {
+                title: "6. A Tragédia do Pós-Guerra: Perseguição e Execução (1945-1948)",
+                content: "A história de Witold Pilecki no pós-guerra é uma profunda e amarga ironia. O herói que arriscou tudo para combater o totalitarismo nazi viu a sua pátria cair sob o domínio de outro regime totalitário. A Polónia, agora sob ocupação soviética e governada por um regime comunista, considerou-o um inimigo do Estado.\n\n**6.1 Missão na Polónia Ocupada pelos Soviéticos**\nApós a sua libertação do cativeiro alemão em 1945, Pilecki juntou-se ao II Corpo Polaco em Itália. Recusando uma vida segura no Ocidente, aceitou uma última missão perigosa: regressar à Polónia em dezembro de 1945, para estabelecer uma rede de inteligência e recolher informações sobre a repressão comunista.\n\n**6.2 A Rede de Inteligência e a Captura**\nNa Polónia, Pilecki criou uma rede de inteligência que recolhia provas dos crimes soviéticos. Quando os seus superiores o informaram que a sua identidade tinha sido descoberta e lhe ordenaram que abandonasse o país, ele recusou-se. A 8 de maio de 1947, foi preso pela polícia secreta comunista (Urząd Bezpieczeństwa, UB).\n\n**6.3 Tortura, Julgamento de Fachada e Execução**\nNa infame prisão de Mokotów, em Varsóvia, Pilecki foi submetido a uma tortura brutal. Durante uma visita da sua esposa, conseguiu transmitir-lhe a terrível realidade do seu sofrimento com a frase: \"Comparado com eles, Auschwitz era apenas uma ninharia.\" Em março de 1948, foi submetido a um julgamento de fachada. A 15 de maio de 1948, foi condenado à morte. A 25 de maio de 1948, foi executado com um tiro na nuca. O seu local de sepultura permanece desconhecido."
+            },
+            {
+                title: "7. Legado e Reabilitação",
+                content: "O legado duradouro de Witold Pilecki não reside apenas nos seus atos heroicos, mas também na subsequente batalha pela sua memória. A sua história, transformada de uma nota de rodapé suprimida num pilar da identidade nacional polaca moderna, simboliza a luta pela verdade histórica contra a tirania.\n\n**7.1 Supressão e Memória**\nDurante a era comunista na Polónia, que durou até 1989, Witold Pilecki foi oficialmente rotulado como traidor e inimigo do Estado. A sua história foi sistematicamente apagada dos registos públicos.\n\n**7.2 Reabilitação Póstuma**\nCom a queda do comunismo, a verdade sobre o sacrifício de Pilecki começou finalmente a emergir. O novo governo democrático da Polónia iniciou o processo de reabilitação formal da sua honra. As honras póstumas que recebeu restauraram o seu lugar de direito na história: 1 de outubro de 1990 (absolvido), 1995 (Ordem da Polónia Restituta), 2006 (Ordem da Águia Branca), 2013 (promovido a Coronel).\n\n**7.3 O Lugar de Pilecki na História**\nHoje, Witold Pilecki é reconhecido internacionalmente como uma figura de extraordinária coragem. O historiador britânico Michael Foot incluiu-o na sua lista dos seis membros mais corajosos da resistência da Segunda Guerra Mundial. A sua missão voluntária em Auschwitz é vista como um testemunho incomparável do auto-sacrifício em nome da verdade e da liberdade, tornando-o um símbolo universal de resistência contra os regimes totalitários."
+            }
+        ];
+
+        const CheckIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> );
+        const XIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg> );
+        const ChevronRightIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg> );
+        const ChevronDownIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg> );
+
+        //============== COMPONENT: Header ===============
+        const Header = ({ onGlossaryClick, onStudyClick, showStudyButton }) => {
+            return (
+                <header className="fixed top-0 left-0 right-0 bg-slate-900/80 backdrop-blur-sm border-b border-slate-700 z-50 shadow-lg">
+                    <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-16">
+                            <div className="flex items-center">
+                                <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-500">
+                                    A Missão de Pilecki
+                                </span>
+                            </div>
+                            <div className="flex items-center space-x-2 sm:space-x-4">
+                                {showStudyButton && (
+                                    <button onClick={onStudyClick} className="text-slate-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                        Voltar ao Estudo
+                                    </button>
+                                )}
+                                <button onClick={onGlossaryClick} className="text-slate-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                    Glossário
+                                </button>
+                                <a href="./A_Vida_Heroica_de_Witold_Pilecki.mp4" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                    Ver Vídeo
+                                </a>
+                                <a href="./A_Vida_Heroica_de_Witold_Pilecki.mp3" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                    Ouvir Podcast
+                                </a>
+                            </div>
+                        </div>
+                    </nav>
+                </header>
+            );
+        };
+
+        //============== COMPONENT: WelcomeScreen ===============
+        const WelcomeScreen = ({ onStart }) => {
+            const [name, setName] = React.useState('');
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (name.trim()) {
+                    onStart(name.trim());
+                }
+            };
+            return (
+                <div className="text-center p-8 bg-slate-800/50 rounded-2xl shadow-2xl border border-slate-700 backdrop-blur-sm animate-fade-in">
+                    <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-500 mb-4">A Missão de Pilecki</h1>
+                    <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl mx-auto">Teste os seus conhecimentos sobre a incrível e heróica história de Witold Pilecki, o homem que se voluntariou para Auschwitz.</p>
+                    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Insira o seu nome" className="w-full sm:w-auto flex-grow bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all duration-300" required />
+                        <button type="submit" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:scale-105 hover:shadow-sky-400/30 transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-400">Começar <ChevronRightIcon /></button>
+                    </form>
+                </div>
+            );
+        };
+        
+         //============== COMPONENT: StudyModule ===============
+        const StudyModule = ({ onStartActivities }) => {
+            const AccordionItem = ({ item }) => {
+                const [isOpen, setIsOpen] = React.useState(false);
+                // Remove .0 from titles like "1.0", "2.0", etc.
+                const formattedTitle = item.title.replace(/\.0/g, '.');
+                return (
+                    <div className="border-b border-slate-700">
+                        <button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center text-left p-4 hover:bg-slate-700/50 focus:outline-none focus:bg-slate-700/50 transition-colors">
+                            <span className="font-semibold text-lg text-slate-200">{formattedTitle}</span>
+                            <span className={`${isOpen ? 'rotate-180' : ''}`}>
+                                <ChevronDownIcon />
+                            </span>
+                        </button>
+                        {isOpen && (
+                            <div className="p-4 pt-0 text-slate-300 whitespace-pre-wrap">
+                                <p>{item.content}</p>
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+
+            return (
+                <div className="p-6 md:p-8 bg-slate-800/50 rounded-2xl shadow-2xl border border-slate-700 backdrop-blur-sm w-full max-w-4xl mx-auto animate-fade-in">
+                    <h2 className="text-2xl md:text-3xl font-bold text-center text-sky-400 mb-2">Módulo de Estudo</h2>
+                    <p className="text-center text-slate-300 mb-8">Reveja os conteúdos antes de começar as atividades.</p>
+                    <div className="max-h-[60vh] overflow-y-auto pr-2">
+                         {studyContent.map(item => <AccordionItem key={item.title} item={item} />)}
+                    </div>
+                    <div className="mt-8 flex justify-center">
+                        <button onClick={onStartActivities} className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-lg hover:scale-105 transform transition-all duration-300 inline-flex items-center">
+                           Começar Atividades <ChevronRightIcon />
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        //============== COMPONENT: Quiz ===============
+        const Quiz = ({ onComplete }) => {
+            const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
+            const [selectedAnswers, setSelectedAnswers] = React.useState([]);
+            const [score, setScore] = React.useState(0);
+            const [showFeedback, setShowFeedback] = React.useState(false);
+            const currentQuestion = React.useMemo(() => quizQuestions[currentQuestionIndex], [currentQuestionIndex]);
+            const handleAnswerSelect = (option) => {
+                if (showFeedback) return;
+                if (currentQuestion.type === QuestionType.MULTIPLE_CHOICE) {
+                    setSelectedAnswers(prev => prev.includes(option) ? prev.filter(a => a !== option) : [...prev, option]);
+                } else {
+                    setSelectedAnswers([option]);
+                }
+            };
+            const handleSubmit = () => {
+                const correctAnswers = currentQuestion.correctAnswers;
+                let isCorrect = false;
+                if (currentQuestion.type === QuestionType.MULTIPLE_CHOICE) {
+                    isCorrect = correctAnswers.length === selectedAnswers.length && correctAnswers.every(ans => selectedAnswers.includes(ans));
+                } else {
+                    isCorrect = correctAnswers.length === 1 && selectedAnswers[0] === correctAnswers[0];
+                }
+                if (isCorrect) {
+                    setScore(prev => prev + 1);
+                }
+                setShowFeedback(true);
+            };
+            const handleNext = () => {
+                if (currentQuestionIndex < quizQuestions.length - 1) {
+                    setCurrentQuestionIndex(prev => prev + 1);
+                    setSelectedAnswers([]);
+                    setShowFeedback(false);
+                } else {
+                    onComplete(score);
+                }
+            };
+            const getOptionClass = (option) => {
+                if (!showFeedback) {
+                    return `bg-slate-800 border-slate-700 hover:bg-slate-700 hover:border-sky-500 ${selectedAnswers.includes(option) ? 'ring-2 ring-sky-500 border-sky-500' : ''}`;
+                }
+                const isCorrect = currentQuestion.correctAnswers.includes(option);
+                if (isCorrect) {
+                    return 'bg-green-500/20 border-green-500 ring-2 ring-green-500';
+                }
+                if (selectedAnswers.includes(option) && !isCorrect) {
+                    return 'bg-red-500/20 border-red-500 ring-2 ring-red-500';
+                }
+                return 'bg-slate-800 border-slate-700 opacity-60';
+            };
+            return (
+                <div className="p-6 md:p-8 bg-slate-800/50 rounded-2xl shadow-2xl border border-slate-700 backdrop-blur-sm w-full max-w-3xl mx-auto animate-fade-in">
+                    <div className="mb-6">
+                        <p className="text-sky-400 font-semibold mb-2">Pergunta {currentQuestionIndex + 1} de {quizQuestions.length}</p>
+                        <h2 className="text-xl md:text-2xl font-bold text-slate-100">{currentQuestion.text}</h2>
+                        {currentQuestion.type === QuestionType.MULTIPLE_CHOICE && <p className="text-sm text-slate-400 mt-1">Selecione todas as opções corretas.</p>}
+                    </div>
+                    <div className="space-y-3">
+                        {currentQuestion.options.map((option, index) => (
+                            <button key={index} onClick={() => handleAnswerSelect(option)} disabled={showFeedback} className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 flex items-center justify-between ${getOptionClass(option)}`}>
+                                <span className="text-slate-200">{option}</span>
+                                {showFeedback && currentQuestion.correctAnswers.includes(option) && <CheckIcon />}
+                                {showFeedback && !currentQuestion.correctAnswers.includes(option) && selectedAnswers.includes(option) && <XIcon />}
+                            </button>
+                        ))}
+                    </div>
+                    {showFeedback && (
+                        <div className="mt-6 p-4 rounded-lg bg-slate-900/70 border border-slate-600">
+                            <p className="font-semibold text-lg text-slate-200">Explicação:</p>
+                            <p className="text-slate-300">{currentQuestion.explanation}</p>
+                        </div>
+                    )}
+                    <div className="mt-8 flex justify-end">
+                        {!showFeedback ? (
+                            <button onClick={handleSubmit} disabled={selectedAnswers.length === 0} className="px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:scale-105 transform transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100">Confirmar Resposta</button>
+                        ) : (
+                            <button onClick={handleNext} className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-lg hover:scale-105 transform transition-all duration-300 inline-flex items-center">{currentQuestionIndex < quizQuestions.length - 1 ? 'Próxima Pergunta' : 'Ver Resultados'}<ChevronRightIcon /></button>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+        
+        //============== COMPONENT: MatchingGame ===============
+        const MatchingGame = ({ onComplete }) => {
+            const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
+            const [terms, setTerms] = React.useState([]);
+            const [descriptions, setDescriptions] = React.useState([]);
+            const [droppedItems, setDroppedItems] = React.useState({});
+            const [draggedItem, setDraggedItem] = React.useState(null);
+            const [isComplete, setIsComplete] = React.useState(false);
+            React.useEffect(() => {
+                setTerms(shuffleArray(matchingItems));
+                setDescriptions(shuffleArray(matchingItems));
+                const initialDrops = {};
+                matchingItems.forEach(item => { initialDrops[item.id] = null; });
+                setDroppedItems(initialDrops);
+            }, []);
+            const handleDragStart = (e, item) => {
+                setDraggedItem(item);
+                e.dataTransfer.effectAllowed = 'move';
+            };
+            const handleDragOver = (e) => e.preventDefault();
+            const handleDrop = (e, description) => {
+                e.preventDefault();
+                if (draggedItem && !droppedItems[description.id]) {
+                    setDroppedItems(prev => ({ ...prev, [description.id]: draggedItem }));
+                    setTerms(prev => prev.filter(t => t.id !== draggedItem.id));
+                    setDraggedItem(null);
+                }
+            };
+            const handleReturnTerm = (descriptionId) => {
+                const itemToReturn = droppedItems[descriptionId];
+                if (itemToReturn) {
+                    setTerms(prev => [...prev, itemToReturn]);
+                    setDroppedItems(prev => ({...prev, [descriptionId]: null}));
+                }
+            };
+            const handleSubmit = () => {
+                setIsComplete(true);
+                let currentScore = 0;
+                Object.keys(droppedItems).forEach(descId => {
+                    if (droppedItems[descId]?.id === descId) {
+                        currentScore++;
+                    }
+                });
+                setTimeout(() => onComplete(currentScore), 2000);
+            };
+            const allDropped = React.useMemo(() => terms.length === 0, [terms]);
+            return (
+                <div className="p-6 md:p-8 bg-slate-800/50 rounded-2xl shadow-2xl border border-slate-700 backdrop-blur-sm w-full max-w-4xl mx-auto animate-fade-in">
+                    <h2 className="text-2xl md:text-3xl font-bold text-center text-sky-400 mb-2">Jogo de Correspondência</h2>
+                    <p className="text-center text-slate-300 mb-8">Arraste o termo da esquerda para a sua descrição correta à direita.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 className="font-bold text-lg text-center mb-4 text-slate-100">Termos</h3>
+                            <div className="space-y-4 min-h-[200px]">
+                                {terms.map(item => (
+                                    <div key={item.id} draggable={!isComplete} onDragStart={(e) => handleDragStart(e, item)} className={`p-4 bg-slate-700 rounded-lg cursor-grab transition-all duration-200 border-2 border-slate-600 shadow-md ${draggedItem?.id === item.id ? 'opacity-50 scale-95' : 'hover:bg-slate-600 hover:border-sky-500'}`}>{item.term}</div>
+                                ))}
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg text-center mb-4 text-slate-100">Descrições</h3>
+                            <div className="space-y-4">
+                                {descriptions.map(desc => {
+                                    const droppedItem = droppedItems[desc.id];
+                                    const isCorrect = isComplete && droppedItem?.id === desc.id;
+                                    const isIncorrect = isComplete && droppedItem && droppedItem.id !== desc.id;
+                                    return (
+                                        <div key={desc.id} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, desc)} className={`p-4 rounded-lg border-2 transition-all duration-200 min-h-[72px] flex items-center ${isCorrect ? 'bg-green-500/20 border-green-500' : isIncorrect ? 'bg-red-500/20 border-red-500' : 'border-dashed border-slate-600'}`}>
+                                            {droppedItem ? (
+                                                <div onClick={() => !isComplete && handleReturnTerm(desc.id)} className={`w-full p-2 bg-slate-600 rounded cursor-pointer text-center ${isComplete ? 'cursor-default' : 'hover:bg-red-800/50'}`}>{droppedItem.term}</div>
+                                            ) : (
+                                                <span className="text-slate-400">{desc.description}</span>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mt-8 flex justify-center">
+                        <button onClick={handleSubmit} disabled={!allDropped || isComplete} className="px-8 py-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:scale-105 transform transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100">{isComplete ? 'Concluído!' : 'Verificar Respostas'}</button>
+                    </div>
+                </div>
+            );
+        };
+
+        //============== COMPONENT: TimelineActivity ===============
+        const TimelineActivity = ({ onComplete }) => {
+            const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
+            const [events, setEvents] = React.useState([]);
+            const [draggedItem, setDraggedItem] = React.useState(null);
+            const [isComplete, setIsComplete] = React.useState(false);
+            React.useEffect(() => { setEvents(shuffleArray(timelineEvents)); }, []);
+            const handleDragStart = (e, item) => {
+                setDraggedItem(item);
+                e.dataTransfer.effectAllowed = 'move';
+            };
+            const handleDragOver = (e) => e.preventDefault();
+            const handleDrop = (e, targetItem) => {
+                e.preventDefault();
+                if (!draggedItem || draggedItem.id === targetItem.id) return;
+                const draggedIndex = events.findIndex(item => item.id === draggedItem.id);
+                const targetIndex = events.findIndex(item => item.id === targetItem.id);
+                const newEvents = [...events];
+                const [removed] = newEvents.splice(draggedIndex, 1);
+                newEvents.splice(targetIndex, 0, removed);
+                setEvents(newEvents);
+                setDraggedItem(null);
+            };
+            const handleSubmit = () => {
+                setIsComplete(true);
+                let currentScore = 0;
+                events.forEach((event, index) => {
+                    if (event.correctOrder === index) {
+                        currentScore++;
+                    }
+                });
+                setTimeout(() => onComplete(currentScore), 2000);
+            };
+            return (
+                <div className="p-6 md:p-8 bg-slate-800/50 rounded-2xl shadow-2xl border border-slate-700 backdrop-blur-sm w-full max-w-3xl mx-auto animate-fade-in">
+                    <h2 className="text-2xl md:text-3xl font-bold text-center text-sky-400 mb-2">Linha do Tempo</h2>
+                    <p className="text-center text-slate-300 mb-8">Ordene os eventos da vida de Pilecki, do mais antigo para o mais recente.</p>
+                    <div className="space-y-4">
+                        {events.map((event, index) => {
+                            const isCorrect = isComplete && event.correctOrder === index;
+                            const isIncorrect = isComplete && event.correctOrder !== index;
+                            return (
+                                <div key={event.id} draggable={!isComplete} onDragStart={(e) => handleDragStart(e, event)} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, event)} className={`p-4 flex items-center gap-4 rounded-lg border-2 cursor-grab transition-all duration-300 shadow-md ${draggedItem?.id === event.id ? 'opacity-50 scale-95' : ''} ${isCorrect ? 'bg-green-500/20 border-green-500' : ''} ${isIncorrect ? 'bg-red-500/20 border-red-500' : ''} ${!isComplete ? 'bg-slate-700 border-slate-600 hover:bg-slate-600' : 'bg-slate-700/50 border-slate-600/50'}`}>
+                                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-slate-800 text-sky-400 font-bold rounded-full">{index + 1}</div>
+                                    <div className="flex-grow">
+                                        <span className="text-slate-300">{event.description}</span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="mt-8 flex justify-center">
+                        <button onClick={handleSubmit} disabled={isComplete} className="px-8 py-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:scale-105 transform transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100">{isComplete ? 'Concluído!' : 'Verificar Ordem'}</button>
+                    </div>
+                </div>
+            );
+        };
+        
+        //============== COMPONENT: FinalReport ===============
+        const FinalReport = ({ userName, scores, onRestart }) => {
+            const totalQuizQuestions = quizQuestions.length;
+            const totalMatchingItems = matchingItems.length;
+            const totalTimelineEvents = timelineEvents.length;
+            const totalPossibleScore = totalQuizQuestions + totalMatchingItems + totalTimelineEvents;
+            const totalUserScore = scores.quiz + scores.matching + scores.timeline;
+            const percentage = Math.round((totalUserScore / totalPossibleScore) * 100);
+            const getMotivationalMessage = () => {
+                if (percentage === 100) return "Perfeito! Você domina a história de Witold Pilecki. Um verdadeiro especialista!";
+                if (percentage >= 80) return "Excelente trabalho! O seu conhecimento sobre este herói é impressionante.";
+                if (percentage >= 60) return "Muito bem! Você tem um bom entendimento da jornada de Pilecki.";
+                if (percentage >= 40) return "Bom esforço. Continue a aprender sobre esta história fascinante.";
+                return "Obrigado por participar! Cada facto aprendido é uma forma de honrar a memória de Pilecki.";
+            };
+            return (
+                <div className="text-center p-8 bg-slate-800/50 rounded-2xl shadow-2xl border border-slate-700 backdrop-blur-sm animate-fade-in">
+                    <h1 className="text-3xl md:text-4xl font-bold text-slate-100 mb-2">Relatório Final</h1>
+                    <p className="text-xl md:text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-500 mb-6">Parabéns, {userName}!</p>
+                    <div className="my-8">
+                        <div className="relative w-40 h-40 mx-auto">
+                            <svg className="w-full h-full" viewBox="0 0 36 36">
+                                <path className="text-slate-700" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path className="text-sky-400" strokeWidth="3" strokeDasharray={`${percentage}, 100`} strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                <span className="text-4xl font-bold text-white">{percentage}%</span>
+                                <span className="text-sm text-slate-400">Pontuação</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p className="text-lg text-slate-300 mb-8 max-w-xl mx-auto">{getMotivationalMessage()}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left p-6 bg-slate-900/50 rounded-lg border border-slate-700 mb-8">
+                        <div><h3 className="font-semibold text-slate-200">Quiz</h3><p className="text-2xl font-bold text-sky-400">{scores.quiz}<span className="text-sm font-normal text-slate-400">/{totalQuizQuestions}</span></p></div>
+                        <div><h3 className="font-semibold text-slate-200">Correspondência</h3><p className="text-2xl font-bold text-sky-400">{scores.matching}<span className="text-sm font-normal text-slate-400">/{totalMatchingItems}</span></p></div>
+                        <div><h3 className="font-semibold text-slate-200">Linha do Tempo</h3><p className="text-2xl font-bold text-sky-400">{scores.timeline}<span className="text-sm font-normal text-slate-400">/{totalTimelineEvents}</span></p></div>
+                    </div>
+                    <button onClick={onRestart} className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:scale-105 hover:shadow-sky-400/30 transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-400">Tentar Novamente</button>
+                </div>
+            );
+        };
+        
+        //============== COMPONENT: Glossary ===============
+        const GlossaryItem = ({ item }) => {
+            const [isOpen, setIsOpen] = React.useState(false);
+            return (
+                <div className="border-b border-slate-700">
+                    <button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center text-left p-4 hover:bg-slate-700/50 focus:outline-none focus:bg-slate-700/50 transition-colors">
+                        <span className="font-semibold text-slate-200">{item.term}</span>
+                        <span className={`${isOpen ? 'rotate-180' : ''}`}>
+                            <ChevronDownIcon />
+                        </span>
+                    </button>
+                    {isOpen && (
+                        <div className="p-4 pt-0 text-slate-300">
+                            <p>{item.definition}</p>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+        const GlossaryModal = ({ isOpen, onClose }) => {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in" onClick={onClose}>
+                    <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 w-full max-w-2xl max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+                        <header className="p-4 border-b border-slate-700 flex justify-between items-center">
+                            <h2 className="text-2xl font-bold text-sky-400">Glossário</h2>
+                            <button onClick={onClose} className="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+                        </header>
+                        <main className="overflow-y-auto p-2">
+                            {glossaryTerms.map(item => <GlossaryItem key={item.term} item={item} />)}
+                        </main>
+                        <footer className="p-4 border-t border-slate-700 text-right">
+                            <button onClick={onClose} className="px-6 py-2 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-600 transition-colors">
+                                Fechar
+                            </button>
+                        </footer>
+                    </div>
+                </div>
+            );
+        };
+        
+        //============== COMPONENT: App (Main) ===============
+        const App = () => {
+            const [gameState, setGameState] = React.useState('welcome');
+            const [userName, setUserName] = React.useState('');
+            const [scores, setScores] = React.useState({ quiz: 0, matching: 0, timeline: 0 });
+            const [isGlossaryOpen, setIsGlossaryOpen] = React.useState(false);
+            
+            const handleStart = (name) => {
+                setUserName(name);
+                setGameState('study');
+            };
+
+            const handleStartActivities = () => {
+                setGameState('quiz');
+            };
+            
+            const handleStudyReturn = () => {
+                setGameState('study');
+            };
+
+            const handleQuizComplete = React.useCallback((score) => {
+                setScores(prev => ({ ...prev, quiz: score }));
+                setGameState('matching');
+            }, []);
+            const handleMatchingComplete = React.useCallback((score) => {
+                setScores(prev => ({ ...prev, matching: score }));
+                setGameState('timeline');
+            }, []);
+            const handleTimelineComplete = React.useCallback((score) => {
+                setScores(prev => ({ ...prev, timeline: score }));
+                setGameState('report');
+            }, []);
+            const handleRestart = () => {
+                setUserName('');
+                setScores({ quiz: 0, matching: 0, timeline: 0 });
+                setGameState('welcome');
+            };
+            const renderContent = () => {
+                switch (gameState) {
+                    case 'welcome': return <WelcomeScreen onStart={handleStart} />;
+                    case 'study': return <StudyModule onStartActivities={handleStartActivities} />;
+                    case 'quiz': return <Quiz onComplete={handleQuizComplete} />;
+                    case 'matching': return <MatchingGame onComplete={handleMatchingComplete} />;
+                    case 'timeline': return <TimelineActivity onComplete={handleTimelineComplete} />;
+                    case 'report': return <FinalReport userName={userName} scores={scores} onRestart={handleRestart} />;
+                    default: return <WelcomeScreen onStart={handleStart} />;
+                }
+            };
+            
+            const showStudyButton = ['quiz', 'matching', 'timeline'].includes(gameState);
+
+            return (
+                <div className="flex flex-col min-h-screen">
+                    <Header 
+                        onGlossaryClick={() => setIsGlossaryOpen(true)} 
+                        onStudyClick={handleStudyReturn}
+                        showStudyButton={showStudyButton}
+                    />
+                    <GlossaryModal isOpen={isGlossaryOpen} onClose={() => setIsGlossaryOpen(false)} />
+                    <main className="flex-grow bg-gradient-to-br from-slate-900 via-gray-900 to-black flex items-center justify-center p-4 pt-24 pb-8">
+                        <div className="w-full max-w-4xl mx-auto">{renderContent()}</div>
+                    </main>
+                    <footer className="bg-slate-900/80 backdrop-blur-sm text-center p-4 border-t border-slate-700">
+                        <p className="text-sm text-slate-400">Teodósio Faria © 2025 A Missão de Pilecki - um Teste à Coragem</p>
+                    </footer>
+                </div>
+            );
+        };
+        
+        //============== RENDER APP ===============
+        const rootElement = document.getElementById('root');
+        const root = ReactDOM.createRoot(rootElement);
+        root.render(<App />);
+
+    </script>
+</body>
+</html>
